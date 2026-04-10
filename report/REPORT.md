@@ -102,9 +102,13 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Thành viên | Strategy | Retrieval Score (/10) | Điểm mạnh | Điểm yếu |
 |-----------|----------|----------------------|-----------|----------|
-| Tôi | RecursiveChunker (cs=300) | 9 | Tôn trọng cấu trúc phân cấp, giữ ngữ cảnh y khoa tốt. | Số lượng chunk lớn (69), tốn tài nguyên store. |
-| Tuấn | SentenceChunker | 7 | Chunk mạch lạc theo câu, dễ đọc cho người dùng. | Nhiều chunk nhỏ lẻ, dễ mất ngữ cảnh của đoạn văn. |
-| Long | RecursiveChunker (cs=500) | 8 | Giữ ngữ cảnh theo paragraph, phù hợp tài liệu có cấu trúc. | Chunks có thể quá lớn cho các factsheet có câu ngắn. |
+| Quách Ngọc Quang (Tôi) | RecursiveChunker (cs=300) | 9 | Tôn trọng cấu trúc phân cấp, giữ ngữ cảnh y khoa tốt. | Số lượng chunk lớn (69), tốn tài nguyên store. |
+| Khổng Mạnh Tuấn | fixed_size | 8 | Ổn định, dễ kiểm soát chunk. | Query 4/5 vẫn lệch tài liệu kỳ vọng, chỉ trả lời được câu hỏi dễ, các câu hỏi phức tạp chọn đúng tài liệu và chỉ số liên quan cao nhưng câu trả lời không chính xác (model local). |
+| Lâm Hoàng Hải | sentence | 6 | Dễ cài đặt, không bị cắt giữa đoạn. | Đúng 3/5 query, miss ý của những câu hỏi phức tạp, cần suy luận từ tương đồng, ngữ cảnh. |
+| Nguyễn Hoàng Long | RecursiveChunker (chunk_size=500) | 8 | Giữ ngữ cảnh theo paragraph, phù hợp tài liệu y khoa có cấu trúc. | Chunks có thể quá lớn cho factsheet câu ngắn. |
+| Thuận | RecursiveChunker | 8 | Fallback thông minh, tôn trọng cấu trúc tự nhiên của tài liệu và rất linh hoạt. | Không thể xử lí bảng biểu, không có overlap. |
+| Trần Thái Huy | SentenceChunker | 7 | Dễ cài đặt, chunk theo câu dễ đọc. | Tạo nhiều chunk hơn, dễ miss ý ở câu hỏi cần ngữ cảnh dài. |
+| Nguyễn Mạnh Dũng | RecursiveChunker (chunk_size=600) | 8 | Data của nhóm có cấu trúc thứ bậc nên ngữ cảnh được giữ lại tốt. | Chunk lớn đôi khi làm loãng ngữ cảnh cho fact ngắn. |
 
 **Chiến lược nào nhóm bạn chọn làm "mặc định"? Tại sao?**
 > Nhóm chọn **Recursive Chunker** vì nó mang lại sự linh hoạt cao nhất, giúp giữ cho các chunk có độ dài đồng đều nhưng vẫn tôn trọng ranh giới tự nhiên của văn bản (đoạn, câu, từ).
