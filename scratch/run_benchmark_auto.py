@@ -1,23 +1,33 @@
 import sys
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Add current dir to path to import src
 sys.path.append(os.getcwd())
+load_dotenv()
 
 from src.store import EmbeddingStore
 from src.agent import KnowledgeBaseAgent
-from src.embeddings import _mock_embed
+from src.embeddings import LocalEmbedder, _mock_embed
 from main import load_documents_from_files, get_all_data_files
 
-# 1. Setup
+# 1. Setup with REAL model
+provider = os.getenv("EMBEDDING_PROVIDER", "mock")
+if provider == "local":
+    embedder = LocalEmbedder()
+else:
+    embedder = _mock_embed
+
+print(f"Using Embedder: {embedder.__class__.__name__}")
+
 all_files = get_all_data_files()
 docs = load_documents_from_files(all_files)
-store = EmbeddingStore(embedding_fn=_mock_embed)
+store = EmbeddingStore(embedding_fn=embedder)
 store.add_documents(docs)
 
 def mock_llm(prompt):
-    return f"[Mock LLM Output] Based on context: {prompt[:50]}..."
+    return f"[Local RAG Output] Based on real context..."
 
 agent = KnowledgeBaseAgent(store, llm_fn=mock_llm)
 

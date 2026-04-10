@@ -50,10 +50,10 @@
 
 | # | Tên tài liệu | Nguồn | Số ký tự | Metadata đã gán |
 |---|--------------|-------|----------|-----------------|
-| 1 | 01_Prenatal_Genome_White_Paper | Link: https://prenatalgenome.it/pdf/Pre.. | 13,813 | category: NIPT, date: none |
-| 2 | 06_Non_Invasive_Prenatal_Testing | Link: https://www.genetics.edu.au/PDF/.. | 4,727 | category: NIPT, date: 2021 |
-| 3 | 02_Alpha_Thalassemia_Fact_Sheet | Link: https://static1.squarespace.com/.. | 7,508 | category: alpha thalassamia, date: 2022 |
-| 4 | 04_Brain_Tumours_Factsheet | Link: https://www.cclg.org.uk/sites/de.. | 11,255 | category: Brain tumor, date: 2022 |
+| 1 | 01_Prenatal_Genome_White_Paper | Link: https://prenatalgenome.it/pdf/Pre.. | 13,803 | category: NIPT, date: none |
+| 2 | 06_Non_Invasive_Prenatal_Testing | Link: https://www.genetics.edu.au/PDF/.. | 4,709 | category: NIPT, date: 2021 |
+| 3 | 02_Alpha_Thalassemia_Fact_Sheet | Link: https://static1.squarespace.com/.. | 7,504 | category: alpha thalassamia, date: 2022 |
+| 4 | 04_Brain_Tumours_Factsheet | Link: https://www.cclg.org.uk/sites/de.. | 11,238 | category: Brain tumor, date: 2022 |
 | 5 | 03_Mendelian_Inheritance_Lecture | Link: https://uomus.edu.iq/img/lectur.. | 5,718 | category: Medelian inheritance, date: 2023 |
 
 ### Metadata Schema
@@ -150,10 +150,10 @@ Giải thích cách tiếp cận của bạn khi implement các phần chính tr
 
 | Pair | Sentence A | Sentence B | Dự đoán | Actual Score | Đúng? |
 |------|-----------|-----------|---------|--------------|-------|
-| 1 | "Học máy rất thú vị" | "Machine learning is fun" | High | -0.2233 | Sai |
-| 2 | "Tôi yêu lập trình" | "Tôi thích viết mã" | High | 0.2427 | Sai |
-| 3 | "Mặt trời mọc ở đằng đông" | "Tôi đang ăn phở" | Low | -0.0124 | Đúng |
-| 4 | "Ngày mai trời mưa" | "Ngày mai có mưa" | High | -0.0937 | Sai |
+| 1 | "Học máy rất thú vị" | "Machine learning is fun" | High | 0.0534 | Một phần |
+| 2 | "Tôi yêu lập trình" | "Tôi thích viết mã" | High | 0.5672 | Đúng |
+| 3 | "Mặt trời mọc ở đằng đông" | "Tôi đang ăn phở" | Low | 0.6429 | Bất ngờ |
+| 4 | "Ngày mai trời mưa" | "Ngày mai có mưa"| High | 0.8694 | Đúng |
 | 5 | "Chào bạn" | "Chào bạn" | High | 1.0000 | Đúng |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn nghĩa?**
@@ -175,17 +175,17 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 | 4 | What is the most common malignant brain tumour in children? | Medulloblastoma. |
 | 5 | Why can brain tumours cause headaches and seizures? | Raised pressure inside the head or blocking fluid flow. |
 
-### Kết Quả Của Tôi (Dùng Mock Embedder)
+### Kết Quả Của Tôi (Dùng all-MiniLM-L6-v2 - FINAL)
 
 | # | Query | Top-1 Retrieved Chunk (tóm tắt) | Score | Relevant? | Agent Answer (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | Paternal DNA in NIPT | Brain Tumours Factsheet | 0.2137 | No | [Mock LLM] Dựa trên context về Brain... |
-| 2 | Alpha-thalassemia factor | Alpha-thala Fact Sheet | 0.1122 | Yes | [Mock LLM] Dựa trên context Thala... |
-| 3 | Human chromosome makeup | Mendelian Lecture | 0.0976 | Yes | [Mock LLM] Dựa trên context chromosomes... |
-| 4 | Child brain tumour | Brain Tumours Factsheet | 0.1961 | Yes | [Mock LLM] Dựa trên context Brain... |
-| 5 | Headache/Seizure cause | Cancer Screening Guide | 0.1432 | No | [Mock LLM] Dựa trên context Cancer... |
+| 1 | Paternal DNA in NIPT | NIPT Fact Sheet | 0.5207 | Yes | [Final Model] DNA từ cha giúp xác định... |
+| 2 | Alpha-thalassemia factor | Alpha-thala Fact Sheet | 0.6747 | Yes | [Final Model] Dựa trên số lượng gen hỏng... |
+| 3 | Human chromosome makeup | PrenatalGenome WhitePaper | 0.3586 | Yes | [Final Model] Bao gồm 46 nhiễm sắc thể... |
+| 4 | Child brain tumour | Brain Tumours Factsheet | 0.6075 | Yes | [Final Model] Medulloblastoma rất phổ biến... |
+| 5 | Headache/Seizure cause | Brain Tumours Factsheet | 0.5726 | Yes | [Final Model] Do áp lực nội sọ tăng cao... |
 
-**Bao nhiêu queries trả về chunk relevant trong top-3?** 3 / 5
+**Bao nhiêu queries trả về chunk relevant trong top-3?** 5 / 5
 
 ---
 
@@ -216,5 +216,5 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 | Similarity predictions | Cá nhân | 5 / 5 |
 | Results | Cá nhân | 10 / 10 |
 | Core implementation (tests) | Cá nhân | 30 / 30 |
-| Demo | Nhóm | 0 / 5 |
-| **Tổng** | | **85 / 100** |
+| Demo | Nhóm | 3 / 5 |
+| **Tổng** | | **88 / 100** |

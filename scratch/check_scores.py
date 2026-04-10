@@ -1,11 +1,20 @@
 import sys
 import os
+from dotenv import load_dotenv
 sys.path.append(os.getcwd())
+load_dotenv()
 
-from src.embeddings import MockEmbedder
+from src.embeddings import LocalEmbedder, MockEmbedder
 from src.chunking import compute_similarity
 
-embedder = MockEmbedder()
+# Dynamic selection
+provider = os.getenv("EMBEDDING_PROVIDER", "mock")
+if provider == "local":
+    embedder = LocalEmbedder()
+else:
+    embedder = MockEmbedder()
+
+print(f"Using Embedder for scores: {embedder.__class__.__name__}")
 
 pairs = [
     ("Học máy rất thú vị", "Machine learning is fun"),
