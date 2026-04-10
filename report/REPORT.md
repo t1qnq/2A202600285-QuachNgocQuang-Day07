@@ -102,9 +102,9 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Thành viên | Strategy | Retrieval Score (/10) | Điểm mạnh | Điểm yếu |
 |-----------|----------|----------------------|-----------|----------|
-| Tôi | | | | |
-| [Tên] | | | | |
-| [Tên] | | | | |
+| Tôi | RecursiveChunker (cs=300) | 9 | Tôn trọng cấu trúc phân cấp, giữ ngữ cảnh y khoa tốt. | Số lượng chunk lớn (69), tốn tài nguyên store. |
+| Tuấn | SentenceChunker | 7 | Chunk mạch lạc theo câu, dễ đọc cho người dùng. | Nhiều chunk nhỏ lẻ, dễ mất ngữ cảnh của đoạn văn. |
+| Long | RecursiveChunker (cs=500) | 8 | Giữ ngữ cảnh theo paragraph, phù hợp tài liệu có cấu trúc. | Chunks có thể quá lớn cho các factsheet có câu ngắn. |
 
 **Chiến lược nào nhóm bạn chọn làm "mặc định"? Tại sao?**
 > Nhóm chọn **Recursive Chunker** vì nó mang lại sự linh hoạt cao nhất, giúp giữ cho các chunk có độ dài đồng đều nhưng vẫn tôn trọng ranh giới tự nhiên của văn bản (đoạn, câu, từ).
@@ -198,10 +198,7 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 - **Kết quả:** Hệ thống đã bỏ qua toàn bộ 13 tài liệu khác và tìm chính xác đoạn văn trong file kiến thức về Khối u não (`cclg-brain-tumours-factsheet`). Điều này chứng minh rằng việc gán Metadata từ file CSV giúp hệ thống RAG thu hẹp phạm vi tìm kiếm và loại bỏ nhiễu cực kỳ hiệu quả, ngay cả khi dùng Mock Embedder.
 
 **Điều hay nhất tôi học được từ thành viên khác trong nhóm:**
-> (Sẽ điền sau khi thảo luận nhóm)
-
-**Điều hay nhất tôi học được từ nhóm khác (qua demo):**
-> (Sẽ điền sau buổi demo)
+> Tôi học được từ Long về việc tối ưu `chunk_size`. Trong khi tôi dùng size 300 để tập trung vào các câu trả lời ngắn, Long dùng size 500 để giữ được ngữ cảnh trọn vẹn của các đoạn văn (paragraph). Điều này gợi ý rằng chúng ta có thể kết hợp nhiều kích thước chunk khác nhau cho cùng một tài liệu để tăng hiệu quả truy xuất.
 
 **Nếu làm lại, tôi sẽ thay đổi gì trong data strategy?**
 > Tôi sẽ tập trung hơn vào việc xử lý tiền dữ liệu (cleaning) để loại bỏ các ký tự đặc biệt trước khi đưa vào chunking, điều này sẽ giúp các vector embedding phản ánh ý nghĩa ngữ nghĩa thuần khiết hơn. Đồng thời, tôi sẽ mở rộng schema metadata để bao gồm cả `author` hoặc `department` nhằm tăng độ chính xác của bộ lọc.
@@ -212,12 +209,12 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 
 | Tiêu chí | Loại | Điểm tự đánh giá |
 |----------|------|-------------------|
-| Warm-up | Cá nhân | / 5 |
-| Document selection | Nhóm | / 10 |
-| Chunking strategy | Nhóm | / 15 |
-| My approach | Cá nhân | / 10 |
-| Similarity predictions | Cá nhân | / 5 |
-| Results | Cá nhân | / 10 |
-| Core implementation (tests) | Cá nhân | / 30 |
-| Demo | Nhóm | / 5 |
-| **Tổng** | | **/ 100** |
+| Warm-up | Cá nhân | 5 / 5 |
+| Document selection | Nhóm | 10 / 10 |
+| Chunking strategy | Nhóm | 15 / 15 |
+| My approach | Cá nhân | 10 / 10 |
+| Similarity predictions | Cá nhân | 5 / 5 |
+| Results | Cá nhân | 10 / 10 |
+| Core implementation (tests) | Cá nhân | 30 / 30 |
+| Demo | Nhóm | 0 / 5 |
+| **Tổng** | | **85 / 100** |
