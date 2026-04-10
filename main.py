@@ -18,20 +18,32 @@ from src.embeddings import (
 from src.models import Document
 from src.store import EmbeddingStore
 
-SAMPLE_FILES = [
-    "data/python_intro.txt",
-    "data/vector_store_notes.md",
-    "data/rag_system_design.md",
-    "data/customer_support_playbook.txt",
-    "data/chunking_experiment_report.md",
-    "data/vi_retrieval_notes.md",
-]
+def get_all_data_files(directory: str = "data") -> list[str]:
+    """Tự động quét toàn bộ file .md và .txt trong thư mục data/."""
+    path = Path(directory)
+    return [str(p) for p in path.glob("*") if p.suffix.lower() in {".md", ".txt"}]
+
+SAMPLE_FILES = get_all_data_files()
 
 
 def load_documents_from_files(file_paths: list[str]) -> list[Document]:
     """Load documents from file paths for the manual demo."""
     allowed_extensions = {".md", ".txt"}
     documents: list[Document] = []
+    
+    # Nạp metadata từ CSV để tra cứu nhanh
+    metadata_map = {}
+    csv_path = Path("docs/document_metadata.csv")
+    if csv_path.exists():
+        import csv
+        try:
+            with open(csv_path, mode='r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    stem = Path(row.get("file_name", "")).stem
+                    metadata_map[stem] = row
+        except Exception as e:
+            print(f"Warning: Could not read metadata CSV: {e}")
 
     for raw_path in file_paths:
         path = Path(raw_path)
@@ -45,11 +57,20 @@ def load_documents_from_files(file_paths: list[str]) -> list[Document]:
             continue
 
         content = path.read_text(encoding="utf-8")
+        
+        # Lấy thông tin từ CSV map, nếu không có thì dùng mặc định
+        csv_info = metadata_map.get(path.stem, {})
+        
         documents.append(
             Document(
                 id=path.stem,
                 content=content,
-                metadata={"source": str(path), "extension": path.suffix.lower()},
+                metadata={
+                    "source": csv_info.get("source", str(path)), 
+                    "extension": path.suffix.lower(),
+                    "category": csv_info.get("category", "Medical"),
+                    "date": csv_info.get("date", "none")
+                },
             )
         )
 

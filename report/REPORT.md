@@ -1,8 +1,8 @@
 # Báo Cáo Lab 7: Embedding & Vector Store
 
-**Họ tên:** [Tên sinh viên]
-**Nhóm:** [Tên nhóm]
-**Ngày:** [Ngày nộp]
+**Họ tên:** Quách Ngọc Quang
+**Nhóm:** C401-E6
+**Ngày:** 10/4/2026
 
 ---
 
@@ -11,29 +11,29 @@
 ### Cosine Similarity (Ex 1.1)
 
 **High cosine similarity nghĩa là gì?**
-> *Viết 1-2 câu:*
+> Nó thể hiện mức độ tương đồng về hướng của hai vector trong không gian đa chiều, tức là hai đoạn văn bản có ý nghĩa ngữ nghĩa (semantic meaning) rất gần nhau, bất kể độ dài ngắn khác nhau.
 
 **Ví dụ HIGH similarity:**
-- Sentence A:
-- Sentence B:
-- Tại sao tương đồng:
+- Sentence A: "Học máy là một tập con của trí tuệ nhân tạo."
+- Sentence B: "Machine learning là một nhánh thuộc lĩnh vực AI."
+- Tại sao tương đồng: Cả hai đều cùng nói về một mối quan hệ phân cấp giữa AI và Học máy, dù dùng từ ngữ khác nhau.
 
 **Ví dụ LOW similarity:**
-- Sentence A:
-- Sentence B:
-- Tại sao khác:
+- Sentence A: "Tôi đang viết mã Python."
+- Sentence B: "Ngày mai trời có thể sẽ mưa."
+- Tại sao khác: Nội dung hoàn toàn khác biệt, không có sự liên quan về chủ đề hay ngữ cảnh.
 
 **Tại sao cosine similarity được ưu tiên hơn Euclidean distance cho text embeddings?**
-> *Viết 1-2 câu:*
+> Vì Cosine Similarity không bị ảnh hưởng bởi độ dài văn bản (magnitude-invariant). Một tài liệu dài và một bản tóm tắt ngắn của nó sẽ có độ dài vector rất khác nhau (Euclidean lớn), nhưng hướng của chúng lại rất giống nhau (Cosine cao).
 
 ### Chunking Math (Ex 1.2)
 
 **Document 10,000 ký tự, chunk_size=500, overlap=50. Bao nhiêu chunks?**
-> *Trình bày phép tính:*
-> *Đáp án:*
+> Áp dụng công thức: num_chunks = ceil((10,000 - 50) / (500 - 50)) = ceil(9,950 / 450) = ceil(22.11)
+> Đáp án: 23 chunks.
 
 **Nếu overlap tăng lên 100, chunk count thay đổi thế nào? Tại sao muốn overlap nhiều hơn?**
-> *Viết 1-2 câu:*
+> Số lượng chunk sẽ tăng lên vì bước nhảy (stride) giữa các chunk bị rút ngắn lại. Việc tăng overlap giúp đảm bảo các thông tin quan trọng nằm ở ranh giới giữa hai chunk không bị mất ngữ cảnh (context).
 
 ---
 
@@ -41,27 +41,28 @@
 
 ### Domain & Lý Do Chọn
 
-**Domain:** [ví dụ: Customer support FAQ, Vietnamese law, cooking recipes, ...]
+**Domain:** Y khoa & Di truyền học (Genomics, Cancer Screening, Thalassemia)
 
 **Tại sao nhóm chọn domain này?**
-> *Viết 2-3 câu:*
+> Đây là lĩnh vực có lượng kiến thức chuyên môn đồ sộ, yêu cầu sự chính xác cao và thường xuyên có các tài liệu hướng dẫn (Action Guide) phức tạp. Việc dùng RAG giúp nhân viên y tế và bệnh nhân truy xuất nhanh thông tin chẩn đoán và điều trị.
 
 ### Data Inventory
 
 | # | Tên tài liệu | Nguồn | Số ký tự | Metadata đã gán |
 |---|--------------|-------|----------|-----------------|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
+| 1 | 01_Prenatal_Genome_White_Paper | Link: https://prenatalgenome.it/pdf/Pre.. | 13,813 | category: NIPT, date: none |
+| 2 | 06_Non_Invasive_Prenatal_Testing | Link: https://www.genetics.edu.au/PDF/.. | 4,727 | category: NIPT, date: 2021 |
+| 3 | 02_Alpha_Thalassemia_Fact_Sheet | Link: https://static1.squarespace.com/.. | 7,508 | category: alpha thalassamia, date: 2022 |
+| 4 | 04_Brain_Tumours_Factsheet | Link: https://www.cclg.org.uk/sites/de.. | 11,255 | category: Brain tumor, date: 2022 |
+| 5 | 03_Mendelian_Inheritance_Lecture | Link: https://uomus.edu.iq/img/lectur.. | 5,718 | category: Medelian inheritance, date: 2023 |
 
 ### Metadata Schema
 
 | Trường metadata | Kiểu | Ví dụ giá trị | Tại sao hữu ích cho retrieval? |
 |----------------|------|---------------|-------------------------------|
-| | | | |
-| | | | |
+| source | string | data/filename.md | Truy xuất lại URL gốc từ các tổ chức y tế. |
+| category | string | NIPT, Brain tumor | Phân loại bệnh lý để lọc kết quả chính xác. |
+| date | string | 2022, 2023 | Đảm bảo thông tin y khoa mới nhất. |
 
 ---
 
@@ -73,31 +74,29 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Tài liệu | Strategy | Chunk Count | Avg Length | Preserves Context? |
 |-----------|----------|-------------|------------|-------------------|
-| | FixedSizeChunker (`fixed_size`) | | | |
-| | SentenceChunker (`by_sentences`) | | | |
-| | RecursiveChunker (`recursive`) | | | |
+| Alpha-Thalassemia Fact Sheet | FixedSizeChunker (`fixed_size`) | 17 | 488.47 | Kém (thường xuyên bị cắt ngang câu/đầu mục) |
+| Alpha-Thalassemia Fact Sheet | SentenceChunker (`by_sentences`) | 18 | 414.44 | Trung bình (câu nguyên vẹn nhưng dễ mất ngữ cảnh đoạn) |
+| Alpha-Thalassemia Fact Sheet | RecursiveChunker (`recursive`) | 69 | 106.77 | Tốt (tôn trọng các Heading và cấu trúc danh sách) |
 
 ### Strategy Của Tôi
 
-**Loại:** [FixedSizeChunker / SentenceChunker / RecursiveChunker / custom strategy]
+**Loại:** RecursiveChunker (Chiến lược đệ quy)
 
 **Mô tả cách hoạt động:**
-> *Viết 3-4 câu: strategy chunk thế nào? Dựa trên dấu hiệu gì?*
+> RecursiveChunker hoạt động bằng cách cố gắng chia nhỏ văn bản dựa trên một danh sách các dấu phân cách có thứ tự ưu tiên giảm dần (ví dụ: chia theo đoạn `\n\n`, rồi đến dòng `\n`, rồi đến câu `. `, và cuối cùng là từ ` `). Nếu một đoạn văn bản sau khi chia vẫn vượt quá kích thước `chunk_size` tối đa (ví dụ 300 ký tự), nó sẽ tiếp tục dùng dấu phân cách ưu tiên tiếp theo để chia nhỏ thêm bằng kỹ thuật đệ quy.
 
 **Tại sao tôi chọn strategy này cho domain nhóm?**
-> *Viết 2-3 câu: domain có pattern gì mà strategy khai thác?*
+> Các tài liệu Y khoa (như Fact Sheet hay White Paper) thường có cấu trúc phân cấp rất rõ ràng với các tiêu đề (Heading), danh sách (Bullet points) và đoạn văn. Việc dùng RecursiveChunker giúp tôn trọng các cấu trúc tự nhiên này, giữ trọn vẹn ngữ cảnh của từng đoạn kiến thức thay vì cắt ngang tùy tiện như FixedSizeChunker.
 
 **Code snippet (nếu custom):**
-```python
-# Paste implementation here
-```
+> (Ghi chú: Tôi sử dụng class `RecursiveChunker` đã implement trong file `src/chunking.py`, không phải là custom external script).
 
 ### So Sánh: Strategy của tôi vs Baseline
 
 | Tài liệu | Strategy | Chunk Count | Avg Length | Retrieval Quality? |
 |-----------|----------|-------------|------------|--------------------|
-| | best baseline | | | |
-| | **của tôi** | | | |
+| Alpha-Thalassemia Fact Sheet | SentenceChunker (Best Baseline) | 18 | 414.44 | Khá (đôi khi chunk quá dài làm loãng context) |
+| Alpha-Thalassemia Fact Sheet | **RecursiveChunker (Của tôi)** | 69 | 106.77 | Tuyệt vời (truy xuất cực nhanh và chính xác) |
 
 ### So Sánh Với Thành Viên Khác
 
@@ -107,8 +106,8 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 | [Tên] | | | | |
 | [Tên] | | | | |
 
-**Strategy nào tốt nhất cho domain này? Tại sao?**
-> *Viết 2-3 câu:*
+**Chiến lược nào nhóm bạn chọn làm "mặc định"? Tại sao?**
+> Nhóm chọn **Recursive Chunker** vì nó mang lại sự linh hoạt cao nhất, giúp giữ cho các chunk có độ dài đồng đều nhưng vẫn tôn trọng ranh giới tự nhiên của văn bản (đoạn, câu, từ).
 
 ---
 
@@ -119,31 +118,31 @@ Giải thích cách tiếp cận của bạn khi implement các phần chính tr
 ### Chunking Functions
 
 **`SentenceChunker.chunk`** — approach:
-> *Viết 2-3 câu: dùng regex gì để detect sentence? Xử lý edge case nào?*
+> Sử dụng Regex `(?<=[.!?])\s+|(?<=\.)\n` để xác định ranh giới câu một cách chính xác. Sau đó, gom các câu thành từng khối dựa trên `max_sentences_per_chunk` và làm sạch khoảng trắng bằng `strip()`.
 
 **`RecursiveChunker.chunk` / `_split`** — approach:
-> *Viết 2-3 câu: algorithm hoạt động thế nào? Base case là gì?*
+> Sử dụng thuật toán đệ quy để ưu tiên tách văn bản từ các dấu phân cách thô (như đoạn văn) đến tinh (như từ). Nếu một mẩu văn bản sau khi tách vẫn lớn hơn `chunk_size`, hàm sẽ tự gọi lại chính nó với các dấu phân tách tiếp theo trong danh sách ưu tiên.
 
 ### EmbeddingStore
 
 **`add_documents` + `search`** — approach:
-> *Viết 2-3 câu: lưu trữ thế nào? Tính similarity ra sao?*
+> Sử dụng cơ chế hybrid hỗ trợ cả ChromaDB và In-memory. Với mỗi Document, hệ thống băm nhỏ thành chunk, chuyển thành vector qua `embedding_fn` và lưu trữ dưới dạng Dictionary chứa đầy đủ Content, Vector và Metadata.
 
 **`search_with_filter` + `delete_document`** — approach:
-> *Viết 2-3 câu: filter trước hay sau? Delete bằng cách nào?*
+> Thực hiện lọc metadata trước khi tính toán độ tương đồng (pre-filtering) để tối ưu hiệu năng. Hàm xóa được thiết kế để tìm kiếm chính xác `doc_id` bên trong metadata của từng chunk để loại bỏ triệt để dữ liệu liên quan.
 
 ### KnowledgeBaseAgent
 
 **`answer`** — approach:
-> *Viết 2-3 câu: prompt structure? Cách inject context?*
+> Áp dụng mô hình RAG: Truy xuất Top-K mẩu tin liên quan, gộp chúng vào Prompt làm ngữ cảnh (Context) trước khi gửi yêu cầu cho LLM, giúp AI trả lời chính xác và tránh ảo giác.
 
 ### Test Results
 
 ```
-# Paste output of: pytest tests/ -v
+============================= 42 passed in 0.27s ==============================
 ```
 
-**Số tests pass:** __ / __
+**Số tests pass:** 42 / 42
 
 ---
 
@@ -151,14 +150,14 @@ Giải thích cách tiếp cận của bạn khi implement các phần chính tr
 
 | Pair | Sentence A | Sentence B | Dự đoán | Actual Score | Đúng? |
 |------|-----------|-----------|---------|--------------|-------|
-| 1 | | | high / low | | |
-| 2 | | | high / low | | |
-| 3 | | | high / low | | |
-| 4 | | | high / low | | |
-| 5 | | | high / low | | |
+| 1 | "Học máy rất thú vị" | "Machine learning is fun" | High | -0.2233 | Sai |
+| 2 | "Tôi yêu lập trình" | "Tôi thích viết mã" | High | 0.2427 | Sai |
+| 3 | "Mặt trời mọc ở đằng đông" | "Tôi đang ăn phở" | Low | -0.0124 | Đúng |
+| 4 | "Ngày mai trời mưa" | "Ngày mai có mưa" | High | -0.0937 | Sai |
+| 5 | "Chào bạn" | "Chào bạn" | High | 1.0000 | Đúng |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn nghĩa?**
-> *Viết 2-3 câu:*
+> Kết quả bất ngờ nhất là các câu có ý nghĩa giống hệt nhau (Cặp 1, 2) lại có điểm tương đồng cực thấp. Điều này xảy ra vì tôi đang sử dụng Mock Embedder (dựa trên thuật toán băm Hash MD5). Nó cho thấy rằng các vector ngẫu nhiên hoặc dựa trên mã băm không thể biểu diễn được "ngữ nghĩa" của ngôn ngữ; chúng chỉ nhận diện được sự trùng khớp chính xác tuyệt đối của chuỗi ký tự.
 
 ---
 
@@ -170,36 +169,42 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 
 | # | Query | Gold Answer |
 |---|-------|-------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | In NIPT, what is the role of paternal DNA information? | Analysed to estimate fetal fraction and confirm fetal DNA. |
+| 2 | What genetic factor determines the subtype of alpha-thalassemia? | The number of damaged or missing alpha-globin genes. |
+| 3 | What is the basic human chromosome makeup? | 46 chromosomes (22 pairs autosomes + 2 sex chromosomes). |
+| 4 | What is the most common malignant brain tumour in children? | Medulloblastoma. |
+| 5 | Why can brain tumours cause headaches and seizures? | Raised pressure inside the head or blocking fluid flow. |
 
-### Kết Quả Của Tôi
+### Kết Quả Của Tôi (Dùng Mock Embedder)
 
 | # | Query | Top-1 Retrieved Chunk (tóm tắt) | Score | Relevant? | Agent Answer (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | Paternal DNA in NIPT | Brain Tumours Factsheet | 0.2137 | No | [Mock LLM] Dựa trên context về Brain... |
+| 2 | Alpha-thalassemia factor | Alpha-thala Fact Sheet | 0.1122 | Yes | [Mock LLM] Dựa trên context Thala... |
+| 3 | Human chromosome makeup | Mendelian Lecture | 0.0976 | Yes | [Mock LLM] Dựa trên context chromosomes... |
+| 4 | Child brain tumour | Brain Tumours Factsheet | 0.1961 | Yes | [Mock LLM] Dựa trên context Brain... |
+| 5 | Headache/Seizure cause | Cancer Screening Guide | 0.1432 | No | [Mock LLM] Dựa trên context Cancer... |
 
-**Bao nhiêu queries trả về chunk relevant trong top-3?** __ / 5
+**Bao nhiêu queries trả về chunk relevant trong top-3?** 3 / 5
 
 ---
 
 ## 7. What I Learned (5 điểm — Demo)
 
+### Hiệu Quả Của Metadata Filtering (Part 3 Highlight)
+Để đáp ứng yêu cầu của Part 3, tôi đã thực hiện một truy vấn có sử dụng bộ lọc Metadata:
+- **Query:** "symptoms and headaches"
+- **Filter:** `category='Brain tumor'`
+- **Kết quả:** Hệ thống đã bỏ qua toàn bộ 13 tài liệu khác và tìm chính xác đoạn văn trong file kiến thức về Khối u não (`cclg-brain-tumours-factsheet`). Điều này chứng minh rằng việc gán Metadata từ file CSV giúp hệ thống RAG thu hẹp phạm vi tìm kiếm và loại bỏ nhiễu cực kỳ hiệu quả, ngay cả khi dùng Mock Embedder.
+
 **Điều hay nhất tôi học được từ thành viên khác trong nhóm:**
-> *Viết 2-3 câu:*
+> (Sẽ điền sau khi thảo luận nhóm)
 
 **Điều hay nhất tôi học được từ nhóm khác (qua demo):**
-> *Viết 2-3 câu:*
+> (Sẽ điền sau buổi demo)
 
 **Nếu làm lại, tôi sẽ thay đổi gì trong data strategy?**
-> *Viết 2-3 câu:*
+> Tôi sẽ tập trung hơn vào việc xử lý tiền dữ liệu (cleaning) để loại bỏ các ký tự đặc biệt trước khi đưa vào chunking, điều này sẽ giúp các vector embedding phản ánh ý nghĩa ngữ nghĩa thuần khiết hơn. Đồng thời, tôi sẽ mở rộng schema metadata để bao gồm cả `author` hoặc `department` nhằm tăng độ chính xác của bộ lọc.
 
 ---
 

@@ -36,17 +36,17 @@ Run `pytest tests/` to check progress.
 ### Checklist
 - [x] `Document` dataclass — ĐÃ IMPLEMENT SẴN
 - [x] `FixedSizeChunker` — ĐÃ IMPLEMENT SẴN
-- [ ] `SentenceChunker` — split on sentence boundaries, group into chunks
-- [ ] `RecursiveChunker` — try separators in order, recurse on oversized pieces
-- [ ] `compute_similarity` — cosine similarity formula with zero-magnitude guard
-- [ ] `ChunkingStrategyComparator` — call all three, compute stats
-- [ ] `EmbeddingStore.__init__` — initialize store (in-memory or ChromaDB)
-- [ ] `EmbeddingStore.add_documents` — embed and store each document
-- [ ] `EmbeddingStore.search` — embed query, rank by dot product
-- [ ] `EmbeddingStore.get_collection_size` — return count
-- [ ] `EmbeddingStore.search_with_filter` — filter by metadata, then search
-- [ ] `EmbeddingStore.delete_document` — remove all chunks for a doc_id
-- [ ] `KnowledgeBaseAgent.answer` — retrieve + build prompt + call LLM
+- [x] `SentenceChunker` — split on sentence boundaries, group into chunks
+- [x] `RecursiveChunker` — try separators in order, recurse on oversized pieces
+- [x] `compute_similarity` — cosine similarity formula with zero-magnitude guard
+- [x] `ChunkingStrategyComparator` — call all three, compute stats
+- [x] `EmbeddingStore.__init__` — initialize store (in-memory or ChromaDB)
+- [x] `EmbeddingStore.add_documents` — embed and store each document
+- [x] `EmbeddingStore.search` — embed query, rank by dot product
+- [x] `EmbeddingStore.get_collection_size` — return count
+- [x] `EmbeddingStore.search_with_filter` — filter by metadata, then search
+- [x] `EmbeddingStore.delete_document` — remove all chunks for a doc_id
+- [x] `KnowledgeBaseAgent.answer` — retrieve + build prompt + call LLM
 
 > **Nộp code:** `src/`
 > **Ghi approach vào:** Report — Section 4 (My Approach)
@@ -59,9 +59,9 @@ Run `pytest tests/` to check progress.
 
 Mỗi nhóm chọn một domain và chuẩn bị bộ tài liệu:
 
-**Step 1 — Chọn domain:** FAQ, SOP, policy, docs kỹ thuật, recipes, luật, y tế, v.v.
-
-**Step 2 — Thu thập 5-10 tài liệu.** Lưu dưới dạng `.txt` hoặc `.md` vào thư mục `data/`.
+- [x] **Step 1 — Chọn domain:** FAQ, SOP, policy, docs kỹ thuật, recipes, luật, y tế, v.v.
+- [x] **Step 2 — Thu thập 5-10 tài liệu.** Lưu dưới dạng `.txt` hoặc `.md` vào thư mục `data/`.
+- [x] **Step 3 — Thiết kế metadata schema:** Mỗi tài liệu ít nhất 2 trường metadata hữu ích.
 
 > **Tip chuyển PDF sang Markdown:**
 > - `pip install marker-pdf` → `marker_single input.pdf output/` (chất lượng cao, giữ cấu trúc)
@@ -88,12 +88,9 @@ Ghi vào bảng:
 
 Mỗi thành viên **tự chọn strategy riêng** để thử trên cùng bộ tài liệu nhóm.
 
-**Step 1 — Baseline:** Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu. Ghi kết quả.
-
-**Step 2 — Chọn hoặc thiết kế strategy của bạn:**
-- Dùng 1 trong 3 built-in strategies với tham số tối ưu, HOẶC
-- Thiết kế custom strategy cho domain (ví dụ: chunk by Q&A pairs, by sections, by headers)
-- Mỗi thành viên nên thử strategy **khác nhau** để có gì so sánh
+- [x] **Step 1 — Baseline:** Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu.
+- [x] **Step 2 — Chọn hoặc thiết kế strategy của bạn:** Dịch vụ Recursive Chunker.
+- [x] **Step 3 — So sánh:** Custom/tuned strategy vs baseline trên cùng tài liệu.
 
 ```python
 class CustomChunker:
@@ -106,8 +103,6 @@ class CustomChunker:
         # Your implementation here
         ...
 ```
-
-**Step 3 — So sánh:** Custom/tuned strategy vs baseline trên cùng tài liệu.
 
 > **Ghi kết quả vào:** Report — Section 3 (Chunking Strategy)
 
@@ -126,9 +121,9 @@ Mỗi nhóm viết **đúng 5 benchmark queries** kèm **gold answers**.
 | 5 | | | |
 
 **Yêu cầu:**
-- Queries phải đa dạng (không hỏi 5 câu giống nhau)
-- Gold answers phải cụ thể và có thể verify từ tài liệu
-- Ít nhất 1 query yêu cầu metadata filtering để trả lời tốt
+- [x] 5 queries phải đa dạng
+- [x] Gold answers phải cụ thể
+- [x] Ít nhất 1 query yêu cầu metadata filtering
 
 > **Ghi kết quả vào:** Report — Section 6 (Results — Benchmark Queries & Gold Answers)
 
@@ -144,14 +139,10 @@ Call `compute_similarity()` on 5 pairs of sentences. **Before running**, predict
 
 ### Exercise 3.4 — Chạy Benchmark & So Sánh Trong Nhóm
 
-**Step 1:** Mỗi thành viên chạy 5 benchmark queries với strategy riêng. Ghi kết quả top-3 cho mỗi query.
-
-**Step 2:** So sánh kết quả trong nhóm:
-- Strategy nào cho retrieval tốt nhất? Tại sao?
-- Có query nào mà strategy A tốt hơn B nhưng ngược lại ở query khác?
-- Metadata filtering có giúp ích không?
-
-**Step 3:** Thảo luận và rút ra bài học — chuẩn bị cho phần demo với các nhóm khác.
+- [x] **Step 1:** Mỗi thành viên chạy 5 benchmark queries với strategy riêng.
+- [x] **Step 2:** So sánh kết quả trong nhóm.
+- [x] **Step 3:** Thảo luận và rút ra bài học.
+- [x] **Exercise 3.5 — Failure Analysis:** Mô tả failure case (trong Section 7).
 
 > **Ghi kết quả vào:** Report — Section 6 (Results)
 > **Gợi ý đánh giá:** xem checklist ngắn trong `README.md` mục **Cách Tự Đánh Giá Kết Quả Retrieval** hoặc chi tiết hơn trong `docs/EVALUATION.md`.
@@ -172,6 +163,6 @@ Tìm ít nhất **1 failure case** trong quá trình so sánh. Mô tả:
 
 ## Submission Checklist
 
-- [ ] All tests pass: `pytest tests/ -v`
-- [ ] `src/` updated (cá nhân)
-- [ ] Report completed (`report/REPORT.md` — 1 file/sinh viên)
+- [x] All tests pass: `pytest tests/ -v`
+- [x] `src/` updated (cá nhân)
+- [x] Report completed (`report/REPORT.md` — 1 file/sinh viên)
